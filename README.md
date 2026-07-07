@@ -28,6 +28,7 @@ Implemented:
 - Simple local memory trigger with `remember: ...` or `memo: ...`.
 - User-selected workspace folder.
 - Placeholder SVG self-portrait generation into the selected folder.
+- Optional OpenAI Images self-portrait generation.
 - Approval dialog before agent-created files are written.
 - Proactive message scheduler.
 - Optional auto-start setting for packaged builds.
@@ -48,6 +49,7 @@ Not implemented yet:
 Optional:
 
 - OpenAI API key, if you want cloud model replies.
+- OpenAI API key, if you want real image generation.
 - Ollama, if you want local LLM replies.
 
 ## Install
@@ -117,6 +119,18 @@ gpt-5.5
 
 The local persona prompt is sent with the `instructions` parameter. Recent messages are sent through the `input` parameter.
 
+For image generation, select `OpenAI Images` in the Workspace section of Settings. The app calls:
+
+```text
+POST https://api.openai.com/v1/images/generations
+```
+
+The current default image model is:
+
+```text
+gpt-image-2
+```
+
 ## Agent Safety Model
 
 The intended safety boundary is:
@@ -127,7 +141,7 @@ The intended safety boundary is:
 - Running external programs should require explicit approval.
 - Sending messages, emails, posts, or network actions on the user's behalf should require explicit approval.
 
-The current MVP only creates a placeholder SVG file inside the selected folder, and asks for approval before writing it.
+The current MVP can create a placeholder SVG or an OpenAI-generated PNG inside the selected folder, and asks for approval before writing it.
 
 ## Roadmap
 
@@ -167,7 +181,7 @@ Status: basic CSS expression states are implemented. Sprite images, richer emoti
 - Store generated asset history.
 - Add folder-only file tools.
 
-Status: approval is implemented for the placeholder self-portrait file action. Real image generation and broader file tools are still pending.
+Status: approval is implemented for self-portrait file actions, and OpenAI Images can generate PNG portraits. Stable Diffusion/ComfyUI and broader file tools are still pending.
 
 ### Phase 5: Memory
 

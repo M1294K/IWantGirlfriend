@@ -7,6 +7,9 @@ const openaiKeyInput = document.getElementById("openaiKeyInput");
 const personaPromptInput = document.getElementById("personaPromptInput");
 const proactiveToggle = document.getElementById("proactiveToggle");
 const autoLaunchToggle = document.getElementById("autoLaunchToggle");
+const imageProviderSelect = document.getElementById("imageProviderSelect");
+const imageModelInput = document.getElementById("imageModelInput");
+const imageSizeSelect = document.getElementById("imageSizeSelect");
 const folderButton = document.getElementById("folderButton");
 const folderPath = document.getElementById("folderPath");
 const portraitButton = document.getElementById("portraitButton");
@@ -26,6 +29,9 @@ function renderSettings(settings) {
   personaPromptInput.value = settings.persona?.systemPrompt || "";
   proactiveToggle.checked = settings.proactiveEnabled;
   autoLaunchToggle.checked = settings.autoLaunch;
+  imageProviderSelect.value = settings.imageProvider || "placeholder";
+  imageModelInput.value = settings.imageModel || "gpt-image-2";
+  imageSizeSelect.value = settings.imageSize || "1024x1024";
   folderPath.textContent = settings.workspaceFolder || "No folder selected";
   leftSideButton.classList.toggle("active", settings.avatarSide === "left");
   rightSideButton.classList.toggle("active", settings.avatarSide === "right");
@@ -53,6 +59,11 @@ personaPromptInput.addEventListener("change", () =>
 );
 proactiveToggle.addEventListener("change", () => updateSettings({ proactiveEnabled: proactiveToggle.checked }));
 autoLaunchToggle.addEventListener("change", () => updateSettings({ autoLaunch: autoLaunchToggle.checked }));
+imageProviderSelect.addEventListener("change", () => updateSettings({ imageProvider: imageProviderSelect.value }));
+imageModelInput.addEventListener("change", () =>
+  updateSettings({ imageModel: imageModelInput.value.trim() || "gpt-image-2" })
+);
+imageSizeSelect.addEventListener("change", () => updateSettings({ imageSize: imageSizeSelect.value }));
 
 folderButton.addEventListener("click", async () => {
   const selected = await window.companion.chooseFolder();

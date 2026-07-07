@@ -61,6 +61,26 @@
       <section class="settings-section">
         <h2>Workspace</h2>
         <div class="setting-row">
+          <label for="imageProviderSelect">Image</label>
+          <select id="imageProviderSelect">
+            <option value="placeholder">Placeholder SVG</option>
+            <option value="openai">OpenAI Images</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label for="imageModelInput">Img model</label>
+          <input id="imageModelInput" type="text" value="gpt-image-2" />
+        </div>
+        <div class="setting-row">
+          <label for="imageSizeSelect">Size</label>
+          <select id="imageSizeSelect">
+            <option value="1024x1024">1024x1024</option>
+            <option value="1536x1024">1536x1024</option>
+            <option value="1024x1536">1024x1536</option>
+            <option value="auto">auto</option>
+          </select>
+        </div>
+        <div class="setting-row">
           <label>Folder</label>
           <button id="folderButton" type="button">Choose</button>
         </div>

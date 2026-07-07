@@ -41,6 +41,9 @@ function defaultStore() {
       provider: "offline",
       openaiApiKey: "",
       openaiModel: "gpt-5.5",
+      imageProvider: "placeholder",
+      imageModel: "gpt-image-2",
+      imageSize: "1024x1024",
       ollamaUrl: "http://127.0.0.1:11434/api/chat",
       ollamaModel: "llama3.1",
       chatBounds: null,
@@ -455,6 +458,80 @@ function createSelfPortraitFile() {
   return record;
 }
 
+function buildSelfPortraitPrompt() {
+  const name = store.settings.persona?.name || DEFAULT_PERSONA.name;
+  return [
+    `A polished anime-inspired desktop companion portrait of ${name}.`,
+    "Warm expression, friendly posture, modern casual outfit.",
+    "Clean character art, soft lighting, transparent-feeling uncluttered background.",
+    "No text, no watermark, no UI elements."
+  ].join(" ");
+}
+
+async function createOpenAISelfPortraitFile() {
+  const folder = store.settings.workspaceFolder;
+  if (!folder) {
+    throw new Error("Choose a workspace folder first.");
+  }
+
+  const apiKey = String(store.settings.openaiApiKey || "").trim();
+  if (!apiKey) {
+    throw new Error("OpenAI API key is not set.");
+  }
+
+  const response = await fetch("https://api.openai.com/v1/images/generations", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: store.settings.imageModel || "gpt-image-2",
+      prompt: buildSelfPortraitPrompt(),
+      size: store.settings.imageSize || "1024x1024"
+    })
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = data.error?.message || `OpenAI image request failed: ${response.status}`;
+    throw new Error(message);
+  }
+
+  const b64 = data.data?.[0]?.b64_json;
+  if (!b64) {
+    throw new Error("OpenAI image response did not include image data.");
+  }
+
+  const safeFolder = path.resolve(folder);
+  fs.mkdirSync(safeFolder, { recursive: true });
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const filename = `luna-openai-self-portrait-${timestamp}.png`;
+  const filePath = path.join(safeFolder, filename);
+  fs.writeFileSync(filePath, Buffer.from(b64, "base64"));
+
+  const record = {
+    path: filePath,
+    prompt: buildSelfPortraitPrompt(),
+    provider: "openai",
+    model: store.settings.imageModel || "gpt-image-2",
+    size: store.settings.imageSize || "1024x1024",
+    createdAt: new Date().toISOString()
+  };
+  store.generatedImages.push(record);
+  saveStore();
+  return record;
+}
+
+async function createSelfPortraitByProvider() {
+  if (store.settings.imageProvider === "openai") {
+    return createOpenAISelfPortraitFile();
+  }
+
+  return createSelfPortraitFile();
+}
+
 async function confirmAgentAction(event, action) {
   const parent = BrowserWindow.fromWebContents(event.sender) || settingsWindow || chatWindow;
   const result = await dialog.showMessageBox(parent, {
@@ -611,14 +688,23 @@ ipcMain.handle("agent:create-self-portrait", async (event) => {
   const approved = await confirmAgentAction(event, {
     title: "Approve file creation",
     message: "Allow Luna to create a self portrait file?",
-    detail: `The file will be created inside this workspace folder:\n${folder}`
+    detail: [
+      `The file will be created inside this workspace folder:\n${folder}`,
+      "",
+      `Image provider: ${store.settings.imageProvider}`,
+      `Image model: ${
+        store.settings.imageProvider === "openai"
+          ? store.settings.imageModel || "gpt-image-2"
+          : "local placeholder"
+      }`
+    ].join("\n")
   });
 
   if (!approved) {
     throw new Error("File creation was cancelled.");
   }
 
-  const record = createSelfPortraitFile();
+  const record = await createSelfPortraitByProvider();
   broadcast("images:updated", store.generatedImages);
   return record;
 });
