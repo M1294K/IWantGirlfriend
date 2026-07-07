@@ -59,6 +59,24 @@
       </section>
 
       <section class="settings-section">
+        <h2>Memory</h2>
+        <form class="memory-composer" id="memoryComposer">
+          <input
+            id="memoryInput"
+            type="text"
+            autocomplete="off"
+            placeholder="Add a memory"
+            aria-label="Memory"
+          />
+          <button type="submit">Add</button>
+        </form>
+        <div class="memory-list" id="memoryList"></div>
+        <button class="secondary-button danger-text" id="clearMemoriesButton" type="button">
+          Clear memories
+        </button>
+      </section>
+
+      <section class="settings-section">
         <h2>Workspace</h2>
         <div class="setting-row">
           <label for="imageProviderSelect">Image</label>

@@ -7,6 +7,10 @@ const openaiKeyInput = document.getElementById("openaiKeyInput");
 const personaPromptInput = document.getElementById("personaPromptInput");
 const proactiveToggle = document.getElementById("proactiveToggle");
 const autoLaunchToggle = document.getElementById("autoLaunchToggle");
+const memoryComposer = document.getElementById("memoryComposer");
+const memoryInput = document.getElementById("memoryInput");
+const memoryList = document.getElementById("memoryList");
+const clearMemoriesButton = document.getElementById("clearMemoriesButton");
 const imageProviderSelect = document.getElementById("imageProviderSelect");
 const imageModelInput = document.getElementById("imageModelInput");
 const imageSizeSelect = document.getElementById("imageSizeSelect");
@@ -37,6 +41,37 @@ function renderSettings(settings) {
   rightSideButton.classList.toggle("active", settings.avatarSide === "right");
 }
 
+function renderMemories(memories) {
+  memoryList.innerHTML = "";
+
+  if (!memories.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.textContent = "No memories yet.";
+    memoryList.append(empty);
+    return;
+  }
+
+  for (const memory of memories) {
+    const item = document.createElement("article");
+    item.className = "memory-item";
+
+    const content = document.createElement("p");
+    content.textContent = memory.content;
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.textContent = "Delete";
+    remove.addEventListener("click", async () => {
+      appState.memories = await window.companion.deleteMemory(memory.id);
+      renderMemories(appState.memories);
+    });
+
+    item.append(content, remove);
+    memoryList.append(item);
+  }
+}
+
 async function updateSettings(patch) {
   appState.settings = await window.companion.updateSettings(patch);
   renderSettings(appState.settings);
@@ -59,6 +94,22 @@ personaPromptInput.addEventListener("change", () =>
 );
 proactiveToggle.addEventListener("change", () => updateSettings({ proactiveEnabled: proactiveToggle.checked }));
 autoLaunchToggle.addEventListener("change", () => updateSettings({ autoLaunch: autoLaunchToggle.checked }));
+memoryComposer.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const content = memoryInput.value.trim();
+  if (!content) return;
+  appState.memories = await window.companion.addMemory(content);
+  memoryInput.value = "";
+  renderMemories(appState.memories);
+});
+clearMemoriesButton.addEventListener("click", async () => {
+  try {
+    appState.memories = await window.companion.clearMemories();
+    renderMemories(appState.memories);
+  } catch (error) {
+    settingsStatus.textContent = error.message;
+  }
+});
 imageProviderSelect.addEventListener("change", () => updateSettings({ imageProvider: imageProviderSelect.value }));
 imageModelInput.addEventListener("change", () =>
   updateSettings({ imageModel: imageModelInput.value.trim() || "gpt-image-2" })
@@ -83,8 +134,13 @@ window.companion.onSettingsUpdated((settings) => {
   appState.settings = settings;
   renderSettings(settings);
 });
+window.companion.onMemoriesUpdated((memories) => {
+  appState.memories = memories;
+  renderMemories(memories);
+});
 
 window.companion.getState().then((state) => {
   appState = state;
   renderSettings(state.settings);
+  renderMemories(state.memories);
 });

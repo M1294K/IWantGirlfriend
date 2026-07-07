@@ -316,7 +316,14 @@ h1 {
   gap: 8px;
 }
 
+.memory-composer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px;
+  gap: 8px;
+}
+
 .composer input,
+.memory-composer input,
 .setting-row input,
 .setting-row select,
 .setting-row textarea {
@@ -342,8 +349,10 @@ h1 {
 }
 
 .composer button,
+.memory-composer button,
 .setting-row button,
-.agent-button {
+.agent-button,
+.secondary-button {
   height: 40px;
   border: 0;
   border-radius: 8px;
@@ -351,6 +360,15 @@ h1 {
   color: #101215;
   cursor: pointer;
   font-weight: 700;
+}
+
+.secondary-button {
+  background: #20262d;
+  color: #eef2f2;
+}
+
+.danger-text {
+  color: #ffc6cc;
 }
 
 .panel {
@@ -397,4 +415,44 @@ h1 {
   font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.memory-list {
+  display: grid;
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.memory-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px;
+  align-items: start;
+  gap: 8px;
+  padding: 9px 10px;
+  border: 1px solid #262d35;
+  border-radius: 8px;
+  background: #171b20;
+}
+
+.memory-item p,
+.empty-state {
+  margin: 0;
+  color: #dfe6e8;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.empty-state {
+  color: #8f9a9d;
+}
+
+.memory-item button {
+  height: 30px;
+  border: 0;
+  border-radius: 7px;
+  background: #2a3038;
+  color: #ffc6cc;
+  cursor: pointer;
+  font-size: 12px;
 }

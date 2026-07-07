@@ -86,7 +86,7 @@ function loadStore() {
         }
       },
       messages: persisted.messages || defaults.messages,
-      memories: persisted.memories || defaults.memories,
+      memories: normalizeMemories(persisted.memories || defaults.memories),
       generatedImages: persisted.generatedImages || defaults.generatedImages
     };
   } catch {
@@ -98,6 +98,18 @@ function loadStore() {
 function saveStore() {
   fs.mkdirSync(path.dirname(getStorePath()), { recursive: true });
   fs.writeFileSync(getStorePath(), JSON.stringify(store, null, 2), "utf8");
+}
+
+function createId(prefix) {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function normalizeMemories(memories) {
+  return memories.map((memory) => ({
+    id: memory.id || createId("memory"),
+    content: String(memory.content || "").trim(),
+    createdAt: memory.createdAt || new Date().toISOString()
+  })).filter((memory) => memory.content);
 }
 
 function createTrayImage() {
@@ -283,14 +295,45 @@ function getRecentMessages(limit = 12) {
 }
 
 function rememberFromUserText(text) {
-  const match = text.match(/(?:remember|memo)\s*[:：]?\s*(.+)$/i);
+  const match = text.match(/(?:remember|memo|기억해)\s*[:：]?\s*(.+)$/i);
   if (!match) return;
 
-  const memory = {
-    content: match[1].trim(),
+  addMemory(match[1].trim());
+}
+
+function addMemory(content) {
+  const normalized = String(content || "").trim();
+  if (!normalized) {
+    throw new Error("Memory content is empty.");
+  }
+
+  const existing = store.memories.some(
+    (memory) => memory.content.toLowerCase() === normalized.toLowerCase()
+  );
+  if (existing) return store.memories;
+
+  store.memories.push({
+    id: createId("memory"),
+    content: normalized,
     createdAt: new Date().toISOString()
-  };
-  store.memories.push(memory);
+  });
+  saveStore();
+  broadcast("memories:updated", store.memories);
+  return store.memories;
+}
+
+function deleteMemory(memoryId) {
+  store.memories = store.memories.filter((memory) => memory.id !== memoryId);
+  saveStore();
+  broadcast("memories:updated", store.memories);
+  return store.memories;
+}
+
+function clearMemories() {
+  store.memories = [];
+  saveStore();
+  broadcast("memories:updated", store.memories);
+  return store.memories;
 }
 
 function buildCompanionInstructions() {
@@ -663,6 +706,24 @@ ipcMain.handle("chat:send", async (_event, text) => {
 });
 
 ipcMain.handle("settings:update", (_event, patch) => updateSettings(patch));
+
+ipcMain.handle("memory:add", (_event, content) => addMemory(content));
+
+ipcMain.handle("memory:delete", (_event, memoryId) => deleteMemory(memoryId));
+
+ipcMain.handle("memory:clear", async (event) => {
+  const approved = await confirmAgentAction(event, {
+    title: "Clear memories",
+    message: "Delete all stored memories?",
+    detail: "This only clears Luna's local memory list. Chat history is not deleted."
+  });
+
+  if (!approved) {
+    throw new Error("Memory clear was cancelled.");
+  }
+
+  return clearMemories();
+});
 
 ipcMain.handle("settings:choose-folder", async (event) => {
   const parent = BrowserWindow.fromWebContents(event.sender) || settingsWindow || chatWindow;

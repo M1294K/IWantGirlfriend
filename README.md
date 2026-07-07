@@ -25,7 +25,8 @@ Implemented:
 - Local OpenAI API key and model settings.
 - Optional Ollama local model mode.
 - Editable persona system prompt.
-- Simple local memory trigger with `remember: ...` or `memo: ...`.
+- Simple local memory trigger with `remember: ...`, `memo: ...`, or `기억해: ...`.
+- Memory management UI for adding, deleting, and clearing local memories.
 - User-selected workspace folder.
 - Placeholder SVG self-portrait generation into the selected folder.
 - Optional OpenAI Images self-portrait generation.
@@ -188,6 +189,8 @@ Status: approval is implemented for self-portrait file actions, and OpenAI Image
 - Move from JSON storage to SQLite.
 - Add long-term memory search.
 - Add user-editable memory management.
+
+Status: JSON-backed memory management UI is implemented. SQLite and search are still pending.
 
 ## Notes
 
