@@ -250,7 +250,8 @@ h1 {
 
 .composer input,
 .setting-row input,
-.setting-row select {
+.setting-row select,
+.setting-row textarea {
   min-width: 0;
   height: 40px;
   border: 1px solid #30363d;
@@ -258,6 +259,18 @@ h1 {
   background: #0c0e11;
   color: #eef2f2;
   padding: 0 12px;
+}
+
+.setting-row textarea {
+  height: auto;
+  min-height: 88px;
+  padding: 10px 12px;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.tall-row {
+  align-items: start;
 }
 
 .composer button,

@@ -38,6 +38,8 @@ function defaultStore() {
       proactiveMinutes: 90,
       workspaceFolder: "",
       provider: "offline",
+      openaiApiKey: "",
+      openaiModel: "gpt-5.5",
       ollamaUrl: "http://127.0.0.1:11434/api/chat",
       ollamaModel: "llama3.1",
       chatBounds: null,
@@ -246,7 +248,30 @@ function rememberFromUserText(text) {
   store.memories.push(memory);
 }
 
+function buildCompanionInstructions() {
+  const persona = store.settings.persona || DEFAULT_PERSONA;
+  const memories = store.memories
+    .slice(-8)
+    .map((memory) => `- ${memory.content}`)
+    .join("\n");
+
+  return [
+    persona.systemPrompt,
+    "",
+    "Stay in character as a desktop companion.",
+    "Be concise, warm, and natural.",
+    "Do not claim you performed file or system actions unless the app actually did them.",
+    memories ? `Known user memories:\n${memories}` : ""
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
 async function getAssistantReply(userText) {
+  if (store.settings.provider === "openai") {
+    return getOpenAIReply(userText);
+  }
+
   if (store.settings.provider === "ollama") {
     return getOllamaReply(userText);
   }
@@ -254,8 +279,58 @@ async function getAssistantReply(userText) {
   return getOfflineReply(userText);
 }
 
+function responseTextFromOpenAI(data) {
+  if (typeof data.output_text === "string" && data.output_text.trim()) {
+    return data.output_text.trim();
+  }
+
+  const parts = [];
+  for (const item of data.output || []) {
+    for (const content of item.content || []) {
+      if (typeof content.text === "string") parts.push(content.text);
+    }
+  }
+  return parts.join("\n").trim();
+}
+
+async function getOpenAIReply(userText) {
+  const apiKey = String(store.settings.openaiApiKey || "").trim();
+  if (!apiKey) {
+    throw new Error("OpenAI API key is not set.");
+  }
+
+  const input = [
+    ...getRecentMessages(10).map((message) => ({
+      role: message.role,
+      content: message.content
+    })),
+    { role: "user", content: userText }
+  ];
+
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: store.settings.openaiModel || "gpt-5.5",
+      instructions: buildCompanionInstructions(),
+      input
+    })
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const message = data.error?.message || `OpenAI request failed: ${response.status}`;
+    throw new Error(message);
+  }
+
+  return responseTextFromOpenAI(data) || "I received an empty response.";
+}
+
 async function getOllamaReply(userText) {
-  const persona = store.settings.persona || DEFAULT_PERSONA;
   const response = await fetch(store.settings.ollamaUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -263,7 +338,7 @@ async function getOllamaReply(userText) {
       model: store.settings.ollamaModel,
       stream: false,
       messages: [
-        { role: "system", content: persona.systemPrompt },
+        { role: "system", content: buildCompanionInstructions() },
         ...getRecentMessages(10).map((message) => ({
           role: message.role,
           content: message.content
@@ -297,7 +372,7 @@ function getOfflineReply(userText) {
 
   const options = [
     "I am listening. This offline mode is simple, but the local chat history is already working.",
-    "That is a good direction. If you switch to Ollama, I can use a local language model.",
+    "That is a good direction. If you switch to Ollama or OpenAI, I can answer with a real model.",
     "The shape is becoming clear: a desktop companion first, then a careful agent inside folders you approve."
   ];
   return options[Math.floor(Math.random() * options.length)];

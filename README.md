@@ -17,7 +17,10 @@ Implemented:
 - Quit button in the chat window.
 - Chat window size and position persistence.
 - Offline fallback reply mode.
+- OpenAI Responses API mode.
+- Local OpenAI API key and model settings.
 - Optional Ollama local model mode.
+- Editable persona system prompt.
 - Simple local memory trigger with `remember: ...` or `memo: ...`.
 - User-selected workspace folder.
 - Placeholder SVG self-portrait generation into the selected folder.
@@ -26,7 +29,6 @@ Implemented:
 
 Not implemented yet:
 
-- OpenAI API provider.
 - Real image generation provider.
 - Live2D, VRM, or sprite-based avatar.
 - SQLite memory store.
@@ -41,6 +43,7 @@ Not implemented yet:
 
 Optional:
 
+- OpenAI API key, if you want cloud model replies.
 - Ollama, if you want local LLM replies.
 
 ## Install
@@ -92,6 +95,24 @@ Default model:
 llama3.1
 ```
 
+## Optional OpenAI Setup
+
+Select `OpenAI` in the app, paste an API key, and choose a model.
+
+The app calls the OpenAI Responses API directly:
+
+```text
+POST https://api.openai.com/v1/responses
+```
+
+The current default model is:
+
+```text
+gpt-5.5
+```
+
+The local persona prompt is sent with the `instructions` parameter. Recent messages are sent through the `input` parameter.
+
 ## Agent Safety Model
 
 The intended safety boundary is:
@@ -123,6 +144,8 @@ Status: mostly implemented.
 - Add persona editing UI.
 - Add conversation summarization.
 
+Status: OpenAI provider, provider settings, and persona editing are implemented. Conversation summarization is still pending.
+
 ### Phase 3: Avatar
 
 - Replace the CSS avatar with sprite images.
@@ -145,4 +168,4 @@ Status: mostly implemented.
 
 ## Notes
 
-The repository folder currently uses the original spelling `AI_Girfriend`. The app product name remains `AI GirlFriend`.
+The repository folder currently uses the original local spelling `AI_Girfriend`. The GitHub repository is `M1294K/IWantGirlfriend`, and the app product name remains `AI GirlFriend`.

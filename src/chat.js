@@ -8,6 +8,8 @@ const rightSideButton = document.getElementById("rightSideButton");
 const quitButton = document.getElementById("quitButton");
 const providerSelect = document.getElementById("providerSelect");
 const modelInput = document.getElementById("modelInput");
+const openaiKeyInput = document.getElementById("openaiKeyInput");
+const personaPromptInput = document.getElementById("personaPromptInput");
 const proactiveToggle = document.getElementById("proactiveToggle");
 const autoLaunchToggle = document.getElementById("autoLaunchToggle");
 const folderButton = document.getElementById("folderButton");
@@ -35,9 +37,15 @@ function renderMessages(messages) {
 function renderSettings(settings) {
   personaName.textContent = settings.persona?.name || "Luna";
   statusLine.textContent =
-    settings.provider === "ollama" ? `Ollama: ${settings.ollamaModel}` : "offline companion";
+    settings.provider === "openai"
+      ? `OpenAI: ${settings.openaiModel}`
+      : settings.provider === "ollama"
+        ? `Ollama: ${settings.ollamaModel}`
+        : "offline companion";
   providerSelect.value = settings.provider;
-  modelInput.value = settings.ollamaModel;
+  modelInput.value = settings.provider === "openai" ? settings.openaiModel : settings.ollamaModel;
+  openaiKeyInput.value = settings.openaiApiKey || "";
+  personaPromptInput.value = settings.persona?.systemPrompt || "";
   proactiveToggle.checked = settings.proactiveEnabled;
   autoLaunchToggle.checked = settings.autoLaunch;
   folderPath.textContent = settings.workspaceFolder || "No folder selected";
@@ -62,7 +70,18 @@ leftSideButton.addEventListener("click", () => updateSettings({ avatarSide: "lef
 rightSideButton.addEventListener("click", () => updateSettings({ avatarSide: "right" }));
 quitButton.addEventListener("click", () => window.companion.quit());
 providerSelect.addEventListener("change", () => updateSettings({ provider: providerSelect.value }));
-modelInput.addEventListener("change", () => updateSettings({ ollamaModel: modelInput.value.trim() || "llama3.1" }));
+modelInput.addEventListener("change", () => {
+  const value = modelInput.value.trim();
+  if (providerSelect.value === "openai") {
+    updateSettings({ openaiModel: value || "gpt-5.5" });
+  } else {
+    updateSettings({ ollamaModel: value || "llama3.1" });
+  }
+});
+openaiKeyInput.addEventListener("change", () => updateSettings({ openaiApiKey: openaiKeyInput.value.trim() }));
+personaPromptInput.addEventListener("change", () =>
+  updateSettings({ persona: { systemPrompt: personaPromptInput.value.trim() } })
+);
 proactiveToggle.addEventListener("change", () => updateSettings({ proactiveEnabled: proactiveToggle.checked }));
 autoLaunchToggle.addEventListener("change", () => updateSettings({ autoLaunch: autoLaunchToggle.checked }));
 
