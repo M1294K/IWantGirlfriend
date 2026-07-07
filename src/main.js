@@ -455,6 +455,22 @@ function createSelfPortraitFile() {
   return record;
 }
 
+async function confirmAgentAction(event, action) {
+  const parent = BrowserWindow.fromWebContents(event.sender) || settingsWindow || chatWindow;
+  const result = await dialog.showMessageBox(parent, {
+    type: "question",
+    buttons: ["Approve", "Cancel"],
+    defaultId: 0,
+    cancelId: 1,
+    title: action.title,
+    message: action.message,
+    detail: action.detail,
+    noLink: true
+  });
+
+  return result.response === 0;
+}
+
 function applyAutoLaunch() {
   if (!app.isPackaged) return;
   app.setLoginItemSettings({
@@ -586,7 +602,22 @@ ipcMain.handle("settings:choose-folder", async (event) => {
   return store.settings.workspaceFolder;
 });
 
-ipcMain.handle("agent:create-self-portrait", () => {
+ipcMain.handle("agent:create-self-portrait", async (event) => {
+  const folder = store.settings.workspaceFolder;
+  if (!folder) {
+    throw new Error("Choose a workspace folder first.");
+  }
+
+  const approved = await confirmAgentAction(event, {
+    title: "Approve file creation",
+    message: "Allow Luna to create a self portrait file?",
+    detail: `The file will be created inside this workspace folder:\n${folder}`
+  });
+
+  if (!approved) {
+    throw new Error("File creation was cancelled.");
+  }
+
   const record = createSelfPortraitFile();
   broadcast("images:updated", store.generatedImages);
   return record;

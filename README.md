@@ -28,6 +28,7 @@ Implemented:
 - Simple local memory trigger with `remember: ...` or `memo: ...`.
 - User-selected workspace folder.
 - Placeholder SVG self-portrait generation into the selected folder.
+- Approval dialog before agent-created files are written.
 - Proactive message scheduler.
 - Optional auto-start setting for packaged builds.
 
@@ -36,7 +37,6 @@ Not implemented yet:
 - Real image generation provider.
 - Live2D, VRM, or sprite-based avatar.
 - SQLite memory store.
-- Fine-grained approval dialogs for file actions.
 - Signed installer.
 
 ## Requirements
@@ -127,7 +127,7 @@ The intended safety boundary is:
 - Running external programs should require explicit approval.
 - Sending messages, emails, posts, or network actions on the user's behalf should require explicit approval.
 
-The current MVP only creates a placeholder SVG file inside the selected folder.
+The current MVP only creates a placeholder SVG file inside the selected folder, and asks for approval before writing it.
 
 ## Roadmap
 
@@ -166,6 +166,8 @@ Status: basic CSS expression states are implemented. Sprite images, richer emoti
 - Add real image generation through OpenAI Images, Stable Diffusion WebUI, or ComfyUI.
 - Store generated asset history.
 - Add folder-only file tools.
+
+Status: approval is implemented for the placeholder self-portrait file action. Real image generation and broader file tools are still pending.
 
 ### Phase 5: Memory
 
