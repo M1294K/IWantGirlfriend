@@ -1,0 +1,44 @@
+{
+  "name": "ai-girlfriend-desktop",
+  "version": "0.1.0",
+  "description": "Desktop AI companion MVP with avatar, chat, local memory, and agent actions.",
+  "main": "src/main.js",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/M1294K/IWantGrilfriend.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "keywords": [
+    "electron",
+    "desktop",
+    "ai",
+    "companion"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "local.ai-girlfriend.desktop",
+    "productName": "AI GirlFriend",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "signAndEditExecutable": false
+    }
+  }
+}
