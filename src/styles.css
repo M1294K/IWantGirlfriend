@@ -15,7 +15,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -132,17 +133,29 @@ select {
   }
 }
 
-.chat-body {
+.chat-body,
+.settings-body {
   min-height: 100vh;
   background: #101215;
 }
 
 .shell {
   display: grid;
-  grid-template-rows: auto 1fr auto auto;
+  grid-template-rows: auto 1fr auto;
   gap: 12px;
   height: 100vh;
   padding: 14px;
+}
+
+.chat-shell {
+  min-height: 0;
+}
+
+.settings-shell {
+  display: grid;
+  gap: 14px;
+  min-height: 100vh;
+  padding: 16px;
 }
 
 .topbar {
@@ -164,7 +177,8 @@ h1 {
   letter-spacing: 0;
 }
 
-.topbar p {
+.topbar p,
+.settings-header p {
   margin: 4px 0 0;
   color: #9da7aa;
   font-size: 12px;
@@ -187,6 +201,14 @@ h1 {
   cursor: pointer;
 }
 
+.segmented.stretch {
+  width: 100%;
+}
+
+.segmented.stretch button {
+  width: auto;
+}
+
 .segmented button.active {
   background: #59c7b1;
   color: #101215;
@@ -194,7 +216,7 @@ h1 {
 
 .icon-button {
   height: 34px;
-  min-width: 52px;
+  min-width: 72px;
   border: 0;
   border-radius: 8px;
   background: #20262d;
@@ -211,7 +233,7 @@ h1 {
 .messages {
   min-height: 0;
   overflow-y: auto;
-  padding: 4px;
+  padding: 4px 2px;
 }
 
 .message {
@@ -244,7 +266,7 @@ h1 {
 
 .composer {
   display: grid;
-  grid-template-columns: 1fr 74px;
+  grid-template-columns: minmax(0, 1fr) 74px;
   gap: 8px;
 }
 
@@ -292,9 +314,27 @@ h1 {
   border-top: 1px solid #262d35;
 }
 
+.settings-section {
+  display: grid;
+  gap: 10px;
+  padding: 0 0 14px;
+  border-bottom: 1px solid #262d35;
+}
+
+.settings-section:last-child {
+  border-bottom: 0;
+}
+
+.settings-section h2 {
+  margin: 0 0 2px;
+  color: #eef2f2;
+  font-size: 15px;
+  letter-spacing: 0;
+}
+
 .setting-row {
   display: grid;
-  grid-template-columns: 64px 1fr;
+  grid-template-columns: 88px minmax(0, 1fr);
   align-items: center;
   gap: 10px;
 }

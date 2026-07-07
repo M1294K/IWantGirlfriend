@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("companion", {
   getState: () => ipcRenderer.invoke("app:get-state"),
   quit: () => ipcRenderer.invoke("app:quit"),
+  openSettings: () => ipcRenderer.invoke("app:open-settings"),
   sendMessage: (text) => ipcRenderer.invoke("chat:send", text),
   updateSettings: (patch) => ipcRenderer.invoke("settings:update", patch),
   chooseFolder: () => ipcRenderer.invoke("settings:choose-folder"),

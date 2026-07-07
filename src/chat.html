@@ -7,17 +7,16 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body class="chat-body">
-    <main class="shell">
+    <main class="shell chat-shell">
       <header class="topbar">
         <div>
           <h1 id="personaName">Luna</h1>
           <p id="statusLine">desktop companion</p>
         </div>
         <div class="top-actions">
-          <div class="segmented" aria-label="Avatar position">
-            <button id="leftSideButton" type="button">L</button>
-            <button id="rightSideButton" type="button">R</button>
-          </div>
+          <button class="icon-button" id="settingsButton" type="button" title="Open settings">
+            Settings
+          </button>
           <button class="icon-button danger" id="quitButton" type="button" title="Quit app">
             Quit
           </button>
@@ -36,45 +35,6 @@
         />
         <button type="submit">Send</button>
       </form>
-
-      <section class="panel">
-        <div class="setting-row">
-          <label for="providerSelect">AI</label>
-          <select id="providerSelect">
-            <option value="offline">Offline</option>
-            <option value="openai">OpenAI</option>
-            <option value="ollama">Ollama local</option>
-          </select>
-        </div>
-        <div class="setting-row">
-          <label for="modelInput">Model</label>
-          <input id="modelInput" type="text" value="llama3.1" />
-        </div>
-        <div class="setting-row">
-          <label for="openaiKeyInput">API key</label>
-          <input id="openaiKeyInput" type="password" autocomplete="off" placeholder="sk-..." />
-        </div>
-        <div class="setting-row tall-row">
-          <label for="personaPromptInput">Persona</label>
-          <textarea id="personaPromptInput" rows="4"></textarea>
-        </div>
-        <div class="setting-row">
-          <label for="proactiveToggle">Proactive</label>
-          <input id="proactiveToggle" type="checkbox" />
-        </div>
-        <div class="setting-row">
-          <label for="autoLaunchToggle">Auto start</label>
-          <input id="autoLaunchToggle" type="checkbox" />
-        </div>
-        <div class="setting-row">
-          <label>Folder</label>
-          <button id="folderButton" type="button">Choose</button>
-        </div>
-        <p class="folder-path" id="folderPath">No folder selected</p>
-        <button class="agent-button" id="portraitButton" type="button">
-          Create self portrait file
-        </button>
-      </section>
     </main>
     <script src="./chat.js"></script>
   </body>

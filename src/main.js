@@ -21,6 +21,7 @@ const DEFAULT_PERSONA = {
 
 let avatarWindow;
 let chatWindow;
+let settingsWindow;
 let tray;
 let store;
 let proactiveTimer;
@@ -43,6 +44,7 @@ function defaultStore() {
       ollamaUrl: "http://127.0.0.1:11434/api/chat",
       ollamaModel: "llama3.1",
       chatBounds: null,
+      settingsBounds: null,
       persona: DEFAULT_PERSONA
     },
     messages: [
@@ -123,6 +125,7 @@ function refreshTrayMenu() {
 function buildAppMenu() {
   return Menu.buildFromTemplate([
     { label: "Open Chat", click: showChat },
+    { label: "Settings", click: showSettings },
     {
       label: "Avatar Position",
       submenu: [
@@ -140,7 +143,6 @@ function buildAppMenu() {
         }
       ]
     },
-    { label: "Settings", click: showChat },
     { type: "separator" },
     { label: "Quit", click: quitApp }
   ]);
@@ -170,12 +172,12 @@ function createAvatarWindow() {
 function createChatWindow() {
   const savedBounds = store.settings.chatBounds;
   chatWindow = new BrowserWindow({
-    width: savedBounds?.width || 430,
+    width: savedBounds?.width || 460,
     height: savedBounds?.height || 640,
     x: savedBounds?.x,
     y: savedBounds?.y,
-    minWidth: 360,
-    minHeight: 520,
+    minWidth: 380,
+    minHeight: 500,
     show: false,
     title: APP_NAME,
     backgroundColor: "#101215",
@@ -195,9 +197,43 @@ function createChatWindow() {
   chatWindow.on("move", saveChatBounds);
 }
 
+function createSettingsWindow() {
+  const savedBounds = store.settings.settingsBounds;
+  settingsWindow = new BrowserWindow({
+    width: savedBounds?.width || 560,
+    height: savedBounds?.height || 680,
+    x: savedBounds?.x,
+    y: savedBounds?.y,
+    minWidth: 460,
+    minHeight: 560,
+    show: false,
+    title: `${APP_NAME} Settings`,
+    backgroundColor: "#101215",
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js")
+    }
+  });
+
+  settingsWindow.loadFile(path.join(__dirname, "settings.html"));
+  settingsWindow.on("close", (event) => {
+    if (!app.isQuitting) {
+      event.preventDefault();
+      settingsWindow.hide();
+    }
+  });
+  settingsWindow.on("resize", saveSettingsBounds);
+  settingsWindow.on("move", saveSettingsBounds);
+}
+
 function saveChatBounds() {
   if (!chatWindow || chatWindow.isDestroyed()) return;
   store.settings.chatBounds = chatWindow.getBounds();
+  saveStore();
+}
+
+function saveSettingsBounds() {
+  if (!settingsWindow || settingsWindow.isDestroyed()) return;
+  store.settings.settingsBounds = settingsWindow.getBounds();
   saveStore();
 }
 
@@ -219,6 +255,12 @@ function showChat() {
   if (!chatWindow) return;
   chatWindow.show();
   chatWindow.focus();
+}
+
+function showSettings() {
+  if (!settingsWindow) return;
+  settingsWindow.show();
+  settingsWindow.focus();
 }
 
 function quitApp() {
@@ -479,6 +521,10 @@ ipcMain.handle("app:quit", () => {
   quitApp();
 });
 
+ipcMain.handle("app:open-settings", () => {
+  showSettings();
+});
+
 ipcMain.handle("avatar:show-menu", (event) => {
   const window = BrowserWindow.fromWebContents(event.sender);
   buildAppMenu().popup({ window });
@@ -525,8 +571,9 @@ ipcMain.handle("chat:send", async (_event, text) => {
 
 ipcMain.handle("settings:update", (_event, patch) => updateSettings(patch));
 
-ipcMain.handle("settings:choose-folder", async () => {
-  const result = await dialog.showOpenDialog(chatWindow, {
+ipcMain.handle("settings:choose-folder", async (event) => {
+  const parent = BrowserWindow.fromWebContents(event.sender) || settingsWindow || chatWindow;
+  const result = await dialog.showOpenDialog(parent, {
     title: "AI companion workspace folder",
     properties: ["openDirectory", "createDirectory"]
   });
@@ -552,6 +599,7 @@ app.whenReady().then(() => {
   createTray();
   createAvatarWindow();
   createChatWindow();
+  createSettingsWindow();
   applyAutoLaunch();
   scheduleProactiveMessage();
 
@@ -559,6 +607,7 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createAvatarWindow();
       createChatWindow();
+      createSettingsWindow();
     }
   });
 });

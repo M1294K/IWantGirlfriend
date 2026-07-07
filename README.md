@@ -14,8 +14,10 @@ Implemented:
 - Avatar right-click opens an app menu.
 - System tray icon with `Open Chat`, `Avatar Position`, `Settings`, and `Quit`.
 - Chat window with local conversation history.
+- Separate settings window so chat space stays focused on conversation.
 - Quit button in the chat window.
 - Chat window size and position persistence.
+- Settings window size and position persistence.
 - Offline fallback reply mode.
 - OpenAI Responses API mode.
 - Local OpenAI API key and model settings.
@@ -134,8 +136,9 @@ The current MVP only creates a placeholder SVG file inside the selected folder.
 - Quit flow.
 - Auto-start setting.
 - Window size and position persistence.
+- Separate settings window.
 
-Status: mostly implemented.
+Status: implemented.
 
 ### Phase 2: AI Providers
 
