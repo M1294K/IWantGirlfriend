@@ -27,6 +27,7 @@ Implemented:
 - Editable persona system prompt.
 - Simple local memory trigger with `remember: ...`, `memo: ...`, or `기억해: ...`.
 - Memory management UI for adding, deleting, and clearing local memories.
+- Memory search UI and relevance-based memory selection for model prompts.
 - User-selected workspace folder.
 - Placeholder SVG self-portrait generation into the selected folder.
 - Optional OpenAI Images self-portrait generation.
@@ -190,7 +191,7 @@ Status: approval is implemented for self-portrait file actions, and OpenAI Image
 - Add long-term memory search.
 - Add user-editable memory management.
 
-Status: JSON-backed memory management UI is implemented. SQLite and search are still pending.
+Status: JSON-backed memory management UI and lightweight keyword search are implemented. Relevant memories are selected for prompts using local keyword matching. SQLite storage is still pending.
 
 ## Notes
 

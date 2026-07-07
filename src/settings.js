@@ -9,6 +9,7 @@ const proactiveToggle = document.getElementById("proactiveToggle");
 const autoLaunchToggle = document.getElementById("autoLaunchToggle");
 const memoryComposer = document.getElementById("memoryComposer");
 const memoryInput = document.getElementById("memoryInput");
+const memorySearchInput = document.getElementById("memorySearchInput");
 const memoryList = document.getElementById("memoryList");
 const clearMemoriesButton = document.getElementById("clearMemoriesButton");
 const imageProviderSelect = document.getElementById("imageProviderSelect");
@@ -41,18 +42,26 @@ function renderSettings(settings) {
   rightSideButton.classList.toggle("active", settings.avatarSide === "right");
 }
 
+function memoryMatchesQuery(memory, query) {
+  const normalizedQuery = query.trim().toLowerCase();
+  if (!normalizedQuery) return true;
+  return memory.content.toLowerCase().includes(normalizedQuery);
+}
+
 function renderMemories(memories) {
   memoryList.innerHTML = "";
+  const query = memorySearchInput.value || "";
+  const visibleMemories = memories.filter((memory) => memoryMatchesQuery(memory, query));
 
-  if (!memories.length) {
+  if (!visibleMemories.length) {
     const empty = document.createElement("p");
     empty.className = "empty-state";
-    empty.textContent = "No memories yet.";
+    empty.textContent = memories.length ? "No matching memories." : "No memories yet.";
     memoryList.append(empty);
     return;
   }
 
-  for (const memory of memories) {
+  for (const memory of visibleMemories) {
     const item = document.createElement("article");
     item.className = "memory-item";
 
@@ -102,6 +111,7 @@ memoryComposer.addEventListener("submit", async (event) => {
   memoryInput.value = "";
   renderMemories(appState.memories);
 });
+memorySearchInput.addEventListener("input", () => renderMemories(appState.memories || []));
 clearMemoriesButton.addEventListener("click", async () => {
   try {
     appState.memories = await window.companion.clearMemories();

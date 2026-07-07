@@ -336,10 +336,40 @@ function clearMemories() {
   return store.memories;
 }
 
-function buildCompanionInstructions() {
+function tokenizeText(text) {
+  return String(text || "")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .split(/\s+/)
+    .filter((token) => token.length >= 2);
+}
+
+function selectRelevantMemories(query, limit = 8) {
+  const queryTokens = new Set(tokenizeText(query));
+  if (!queryTokens.size) return store.memories.slice(-limit);
+
+  const scored = store.memories.map((memory, index) => {
+    const memoryTokens = tokenizeText(memory.content);
+    const score = memoryTokens.reduce(
+      (total, token) => total + (queryTokens.has(token) ? 1 : 0),
+      0
+    );
+    return { memory, score, index };
+  });
+
+  const relevant = scored
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score || b.index - a.index)
+    .slice(0, limit)
+    .map((item) => item.memory);
+
+  if (relevant.length) return relevant;
+  return store.memories.slice(-limit);
+}
+
+function buildCompanionInstructions(userText = "") {
   const persona = store.settings.persona || DEFAULT_PERSONA;
-  const memories = store.memories
-    .slice(-8)
+  const memories = selectRelevantMemories(userText, 8)
     .map((memory) => `- ${memory.content}`)
     .join("\n");
 
@@ -403,7 +433,7 @@ async function getOpenAIReply(userText) {
     },
     body: JSON.stringify({
       model: store.settings.openaiModel || "gpt-5.5",
-      instructions: buildCompanionInstructions(),
+      instructions: buildCompanionInstructions(userText),
       input
     })
   });
@@ -426,7 +456,7 @@ async function getOllamaReply(userText) {
       model: store.settings.ollamaModel,
       stream: false,
       messages: [
-        { role: "system", content: buildCompanionInstructions() },
+        { role: "system", content: buildCompanionInstructions(userText) },
         ...getRecentMessages(10).map((message) => ({
           role: message.role,
           content: message.content
@@ -454,8 +484,8 @@ function getOfflineReply(userText) {
     return "I can create a local placeholder portrait now. A real image provider can be connected next.";
   }
 
-  if (lower.includes("remember") || lower.includes("memo")) {
-    return "Got it. Use 'remember: ...' or 'memo: ...' and I will store it locally.";
+  if (lower.includes("remember") || lower.includes("memo") || lower.includes("기억")) {
+    return "Got it. Use 'remember: ...', 'memo: ...', or '기억해: ...' and I will store it locally.";
   }
 
   const options = [
