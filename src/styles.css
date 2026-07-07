@@ -41,6 +41,8 @@ textarea {
   right: 8px;
   bottom: 214px;
   max-width: 200px;
+  max-height: 62px;
+  overflow: hidden;
   padding: 10px 12px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
@@ -48,6 +50,7 @@ textarea {
   color: #f4f6f7;
   font-size: 12px;
   line-height: 1.45;
+  text-align: left;
   opacity: 0;
   transform: translateY(8px);
   transition: opacity 160ms ease, transform 160ms ease;
@@ -101,6 +104,7 @@ textarea {
   height: 16px;
   border-radius: 50%;
   background: #111418;
+  transition: height 160ms ease, transform 160ms ease;
 }
 
 .mouth {
@@ -111,6 +115,7 @@ textarea {
   height: 12px;
   border-bottom: 4px solid #9a4f58;
   border-radius: 0 0 24px 24px;
+  transition: all 160ms ease;
 }
 
 .body {
@@ -121,6 +126,47 @@ textarea {
   height: 98px;
   border-radius: 52px 52px 12px 12px;
   background: linear-gradient(135deg, #59c7b1, #3d7fd8);
+  transition: background 160ms ease;
+}
+
+.avatar.mood-happy .eyes span {
+  height: 8px;
+  transform: translateY(4px);
+}
+
+.avatar.mood-happy .mouth {
+  left: 32px;
+  width: 32px;
+  height: 16px;
+  border-bottom-width: 5px;
+}
+
+.avatar.mood-curious .eyes span:first-child {
+  transform: translateY(-2px);
+}
+
+.avatar.mood-curious .mouth {
+  left: 42px;
+  width: 12px;
+  height: 12px;
+  border: 3px solid #9a4f58;
+  border-radius: 50%;
+}
+
+.avatar.mood-alert .eyes span {
+  height: 18px;
+}
+
+.avatar.mood-alert .mouth {
+  left: 40px;
+  width: 16px;
+  height: 16px;
+  border: 3px solid #9a4f58;
+  border-radius: 50%;
+}
+
+.avatar.mood-alert .body {
+  background: linear-gradient(135deg, #e56b6f, #3d7fd8);
 }
 
 @keyframes idle {

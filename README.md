@@ -9,6 +9,8 @@ This project is intentionally a desktop app, not a web app. It uses Electron so 
 Implemented:
 
 - Transparent always-on-top avatar window.
+- Avatar speech bubble truncates long messages with `...`.
+- Basic avatar expression states based on assistant replies.
 - Avatar placement on the lower-left or lower-right side of the screen.
 - Avatar click opens the chat window.
 - Avatar right-click opens an app menu.
@@ -155,6 +157,8 @@ Status: OpenAI provider, provider settings, and persona editing are implemented.
 - Add expression states.
 - Switch expressions based on reply emotion.
 - Evaluate Live2D or VRM later.
+
+Status: basic CSS expression states are implemented. Sprite images, richer emotion detection, and Live2D/VRM are still pending.
 
 ### Phase 4: Agent Actions
 

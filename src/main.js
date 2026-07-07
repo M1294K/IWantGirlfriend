@@ -1,4 +1,4 @@
-const {
+﻿const {
   app,
   BrowserWindow,
   Menu,
